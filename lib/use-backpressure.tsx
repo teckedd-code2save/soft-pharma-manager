@@ -24,34 +24,11 @@ import { useRouter } from 'next/navigation';
  */
 export function useBackpressure(delay: number = 300) {
   let router = useRouter();
-  let isUpdatingRef = useRef(false);
-  let updateCountRef = useRef(0);
-  let latestUrlRef = useRef('');
   let formRef = useRef<HTMLFormElement>(null);
 
   async function triggerUpdate(newUrl: string) {
-    updateCountRef.current++;
-    latestUrlRef.current = newUrl;
-
-    if (!isUpdatingRef.current) {
-      isUpdatingRef.current = true;
-      let currentUpdateCount = updateCountRef.current;
-
-      router.replace(newUrl);
-
-      await new Promise<void>((resolve) => {
-        setTimeout(() => {
-          isUpdatingRef.current = false;
-          if (updateCountRef.current !== currentUpdateCount) {
-            formRef.current?.requestSubmit();
-          }
-          resolve();
-        }, delay);
-      });
-    }
+    router.replace(newUrl);
   }
 
-  let shouldSuspend = updateCountRef.current > 0 && !isUpdatingRef.current;
-
-  return { triggerUpdate, shouldSuspend, formRef };
+  return { triggerUpdate, shouldSuspend: false, formRef };
 }

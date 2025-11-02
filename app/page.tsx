@@ -5,7 +5,7 @@ import {
   estimateTotalBooks,
   fetchBooksWithPagination,
   ITEMS_PER_PAGE,
-} from '@/lib/db/queries';
+} from '@/lib/db/queries-prisma';
 import { parseSearchParams } from '@/lib/url-state';
 
 export default async function Page(

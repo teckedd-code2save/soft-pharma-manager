@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Author {
+  id                 String        @id
+  name               String
+  average_rating     Decimal?      @db.Decimal(3, 2)
+  text_reviews_count Int?
+  ratings_count      Int?
+  bookToAuthor       BookToAuthor[]
+
+  @@map("authors")
+}
+
+model Book {
+  id                 Int           @id @default(autoincrement())
+  isbn               String?       @unique
+  isbn13             String?
+  title              String
+  publication_year   Int?
+  publisher          String?
+  image_url          String?
+  description        String?
+  num_pages          Int?
+  language_code      String?
+  text_reviews_count Int?
+  ratings_count      Int?
+  average_rating     Decimal?      @db.Decimal(3, 2)
+  series             String[]
+  popular_shelves    Json?
+  createdAt          DateTime      @default(now()) @map("created_at")
+  metadata           Json?
+  thumbhash          String?
+  bookToAuthor       BookToAuthor[]
+
+  @@index([publication_year], map: "idx_books_publication_year")
+  @@index([average_rating], map: "idx_books_average_rating")
+  @@index([language_code], map: "idx_books_language_code")
+  @@index([num_pages], map: "idx_books_num_pages")
+  @@index([createdAt], map: "idx_books_created_at")
+  @@index([isbn], map: "idx_books_isbn")
+  @@index([id, title, image_url, thumbhash], map: "idx_books_id_title_image_url_thumbhash")
+  @@map("books")
+}
+
+model BookToAuthor {
+  bookId   Int    @map("book_id")
+  authorId String @map("author_id")
+  book     Book   @relation(fields: [bookId], references: [id])
+  author   Author @relation(fields: [authorId], references: [id])
+
+  @@id([bookId, authorId])
+  @@map("book_to_author")
+}

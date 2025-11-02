@@ -6,7 +6,7 @@ import {
   ArrowLeftIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { fetchBookById, fetchBooksWithPagination } from '@/lib/db/queries';
+import { fetchBookById, fetchBooksWithPagination } from '@/lib/db/queries-prisma';
 import { Photo } from '@/components/photo';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Link from 'next/link';
@@ -33,7 +33,7 @@ function getLanguageLabel(code: string | null): string {
 export async function generateStaticParams() {
   const books = await fetchBooksWithPagination({});
 
-  return books.map((books) => ({
+  return books.map((books: any) => ({
     id: books.id.toString(),
   }));
 }
@@ -69,7 +69,7 @@ export default async function Page(
         <div className="flex-1">
           <h1 className="text-2xl md:text-3xl font-bold mb-2">{book.title}</h1>
           <div className="text-lg md:text-xl mb-4">
-            {book.authors.map((author, index) => (
+            {book.authors.map((author: any, index:any) => (
               <span key={author}>
                 {author}
                 {index < book.authors.length - 1 ? ', ' : ''}

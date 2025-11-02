@@ -1,15 +1,23 @@
 import Link from 'next/link';
-import { Book } from '@/lib/db/schema';
 import { Photo } from './photo';
 import { SearchParams, stringifySearchParams } from '@/lib/url-state';
+
+type Book = {
+  id: number;
+  title: string;
+  image_url: string | null;
+  thumbhash: string | null;
+};
 
 export async function BooksGrid({
   books,
   searchParams,
 }: {
-  books: Book[];
+  books: any[];
   searchParams: SearchParams;
 }) {
+  console.log('Books data:', books?.length, books?.[0]); // Debug log
+  
   return (
     <div className="grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7">
       {!books?.length ? (
@@ -36,16 +44,12 @@ function BookLink({
   searchParams,
 }: {
   priority: boolean;
-  book: Book;
+  book: any;
   searchParams: SearchParams;
 }) {
-  if (!book.thumbhash) {
-    console.warn(`Book ${book.id} has no thumbhash`);
-    return null;
-  }
-
   let noFilters = Object.values(searchParams).every((v) => v === undefined);
 
+  // Show book even without thumbhash, with fallback
   return (
     <Link
       href={`/${book.id}?${stringifySearchParams(searchParams)}`}
@@ -53,12 +57,21 @@ function BookLink({
       className="block transition ease-in-out md:hover:scale-105"
       prefetch={noFilters ? true : null}
     >
-      <Photo
-        src={book.image_url!}
-        title={book.title}
-        thumbhash={book.thumbhash!}
-        priority={priority}
-      />
+      {book.thumbhash ? (
+        <Photo
+          src={book.image_url!}
+          title={book.title}
+          thumbhash={book.thumbhash}
+          priority={priority}
+        />
+      ) : (
+        <div className="relative aspect-[2/3] w-full overflow-hidden rounded-md bg-muted shadow-md flex items-center justify-center">
+          <div className="text-center p-2">
+            <div className="text-sm font-medium truncate">{book.title}</div>
+            <div className="text-xs text-muted-foreground mt-1">No Image</div>
+          </div>
+        </div>
+      )}
     </Link>
   );
 }

@@ -35,9 +35,7 @@ function SearchBase({ initialQuery }: { initialQuery: string }) {
     }
   }, []);
 
-  if (shouldSuspend) {
-    use(Promise.resolve());
-  }
+  // Removed problematic suspense logic
 
   return (
     <Form

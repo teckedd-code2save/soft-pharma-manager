@@ -6,7 +6,7 @@ import {
   timestamp,
   decimal,
   json,
-  vector,
+  //vector,
   primaryKey,
   index,
 } from 'drizzle-orm/pg-core';
@@ -45,15 +45,15 @@ export const books = pgTable(
     popular_shelves: json('popular_shelves'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     metadata: json('metadata'),
-    embedding: vector('embedding', { dimensions: 1536 }),
-    title_tsv: text('title_tsv').notNull(),
+    //embedding: vector('embedding', { dimensions: 1536 }),
+    //title_tsv: text('title_tsv').notNull(),
     thumbhash: text('thumbhash'),
   },
   (table) => ({
-    titleTsvIdx: index('idx_books_title_tsv').using(
-      'gin',
-      sql`to_tsvector('english', ${table.title_tsv})`
-    ),
+    // titleTsvIdx: index('idx_books_title_tsv').using(
+    //   'gin',
+    //   sql`to_tsvector('english', ${table.title_tsv})`
+    // ),
     publicationYearIdx: index('idx_books_publication_year').on(
       table.publication_year
     ),
