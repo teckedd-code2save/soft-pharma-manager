@@ -1,11 +1,12 @@
 export interface SearchParams {
   search?: string;
-  yr?: string;
-  rtg?: string;
-  lng?: string;
-  pgs?: string;
+  brand?: string;
+  wholesaler?: string;
+  formulation?: string;
+  minPrice?: string;
+  maxPrice?: string;
+  inStock?: string;
   page?: string;
-  isbn?: string;
 }
 
 export function parseSearchParams(
@@ -13,12 +14,13 @@ export function parseSearchParams(
 ): SearchParams {
   return {
     search: typeof params.search === 'string' ? params.search : undefined,
-    yr: Array.isArray(params.yr) ? params.yr[0] : params.yr,
-    rtg: typeof params.rtg === 'string' ? params.rtg : undefined,
-    lng: typeof params.lng === 'string' ? params.lng : undefined,
-    pgs: Array.isArray(params.pgs) ? params.pgs[0] : params.pgs,
+    brand: typeof params.brand === 'string' ? params.brand : undefined,
+    wholesaler: typeof params.wholesaler === 'string' ? params.wholesaler : undefined,
+    formulation: typeof params.formulation === 'string' ? params.formulation : undefined,
+    minPrice: typeof params.minPrice === 'string' ? params.minPrice : undefined,
+    maxPrice: typeof params.maxPrice === 'string' ? params.maxPrice : undefined,
+    inStock: typeof params.inStock === 'string' ? params.inStock : undefined,
     page: typeof params.page === 'string' ? params.page : undefined,
-    isbn: typeof params.isbn === 'string' ? params.isbn : undefined,
   };
 }
 

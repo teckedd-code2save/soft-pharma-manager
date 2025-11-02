@@ -1,19 +1,9 @@
 import { prisma } from './prisma';
+import { SearchParams } from '@/lib/url-state';
 
 export const ITEMS_PER_PAGE = 28;
 
-export interface PharmacySearchParams {
-  page?: string;
-  search?: string;
-  brand?: string;
-  wholesaler?: string;
-  formulation?: string;
-  minPrice?: string;
-  maxPrice?: string;
-  inStock?: string;
-}
-
-function buildWhereClause(searchParams: PharmacySearchParams) {
+function buildWhereClause(searchParams: SearchParams) {
   const where: any = {};
 
   if (searchParams.search) {
@@ -54,7 +44,7 @@ function buildWhereClause(searchParams: PharmacySearchParams) {
   return where;
 }
 
-export async function fetchMedicinesWithPagination(searchParams: PharmacySearchParams) {
+export async function fetchMedicinesWithPagination(searchParams: SearchParams) {
   const requestedPage = Math.max(1, Number(searchParams?.page) || 1);
   const offset = (requestedPage - 1) * ITEMS_PER_PAGE;
 
@@ -77,7 +67,7 @@ export async function fetchMedicinesWithPagination(searchParams: PharmacySearchP
   return medicines;
 }
 
-export async function estimateTotalMedicines(searchParams: PharmacySearchParams) {
+export async function estimateTotalMedicines(searchParams: SearchParams) {
   const where = buildWhereClause(searchParams);
 
   const count = await prisma.medicine.count({
