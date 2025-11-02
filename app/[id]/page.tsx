@@ -71,7 +71,7 @@ export default async function Page(
             <div className="flex items-center mb-4">
               <DollarSignIcon className="w-5 h-5 mr-2 text-green-600" />
               <span className="text-2xl font-bold text-green-600">
-                ${medicine.price}
+                ${medicine.price.toString()}
               </span>
             </div>
           )}

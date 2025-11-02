@@ -1,18 +1,36 @@
-# Next.js Book Inventory
+# Pharmacy Management System
 
-Demo: https://next-books-search.vercel.app
+A modern pharmacy inventory management system built with Next.js, Prisma, and PostgreSQL.
 
-This is a book inventory app built with Next.js, Drizzle, and PostgreSQL. The database contains over 2,000,000 books from Goodreads. [Full dataset here](https://mengtingwan.github.io/data/goodreads.html).
+## Features
 
-## Database Setup
+- **Medicine Inventory**: Manage medicines with detailed information including brand, wholesaler, formulation, pricing, and stock levels
+- **Advanced Filtering**: Filter medicines by brand, wholesaler, formulation, price range, and stock availability
+- **Search Functionality**: Search medicines by name with real-time results
+- **Detailed Medicine View**: View comprehensive medicine information including strength, pack size, batch numbers, and expiry dates
+- **Responsive Design**: Works seamlessly on desktop and mobile devices
 
-This is currently using a Postgres extension called `unaccent` to remove accents from the book titles. This also uses the pgvector extension to use Postgres as a vector store. To install these extensions, run the following command on your database:
+## Database Schema
 
-```sql
-CREATE EXTENSION IF NOT EXISTS unaccent;
-CREATE EXTENSION IF NOT EXISTS vector;
-```
+The system uses four main entities:
+- **Medicines**: Core inventory items with pricing, stock, and specifications
+- **Brands**: Pharmaceutical manufacturers (Pfizer, Johnson & Johnson, etc.)
+- **Wholesalers**: Distribution partners (McKesson, Cardinal Health, etc.)
+- **Formulations**: Medicine types (Tablet, Capsule, Syrup, Injection)
 
-## Deploy on Vercel
+## Getting Started
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/templates/next.js/next-book-inventory)
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Set up your PostgreSQL database
+4. Configure environment variables in `.env`
+5. Run database migrations: `npx prisma migrate dev`
+6. Seed sample data: `npx tsx lib/db/seed-pharmacy.ts`
+7. Start the development server: `npm run dev`
+
+## Tech Stack
+
+- **Framework**: Next.js 14 with App Router
+- **Database**: PostgreSQL with Prisma ORM
+- **UI**: Tailwind CSS with Radix UI components
+- **TypeScript**: Full type safety throughout the application
