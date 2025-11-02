@@ -7,54 +7,58 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Author {
-  id                 String        @id
-  name               String
-  average_rating     Decimal?      @db.Decimal(3, 2)
-  text_reviews_count Int?
-  ratings_count      Int?
-  bookToAuthor       BookToAuthor[]
+model Brand {
+  id        String     @id
+  name      String
+  medicines Medicine[]
 
-  @@map("authors")
+  @@map("brands")
 }
 
-model Book {
-  id                 Int           @id @default(autoincrement())
-  isbn               String?       @unique
-  isbn13             String?
-  title              String
-  publication_year   Int?
-  publisher          String?
-  image_url          String?
-  description        String?
-  num_pages          Int?
-  language_code      String?
-  text_reviews_count Int?
-  ratings_count      Int?
-  average_rating     Decimal?      @db.Decimal(3, 2)
-  series             String[]
-  popular_shelves    Json?
-  createdAt          DateTime      @default(now()) @map("created_at")
-  metadata           Json?
-  thumbhash          String?
-  bookToAuthor       BookToAuthor[]
+model Wholesaler {
+  id        String     @id
+  name      String
+  medicines Medicine[]
 
-  @@index([publication_year], map: "idx_books_publication_year")
-  @@index([average_rating], map: "idx_books_average_rating")
-  @@index([language_code], map: "idx_books_language_code")
-  @@index([num_pages], map: "idx_books_num_pages")
-  @@index([createdAt], map: "idx_books_created_at")
-  @@index([isbn], map: "idx_books_isbn")
-  @@index([id, title, image_url, thumbhash], map: "idx_books_id_title_image_url_thumbhash")
-  @@map("books")
+  @@map("wholesalers")
 }
 
-model BookToAuthor {
-  bookId   Int    @map("book_id")
-  authorId String @map("author_id")
-  book     Book   @relation(fields: [bookId], references: [id])
-  author   Author @relation(fields: [authorId], references: [id])
+model Formulation {
+  id        String     @id
+  name      String
+  medicines Medicine[]
 
-  @@id([bookId, authorId])
-  @@map("book_to_author")
+  @@map("formulations")
+}
+
+model Medicine {
+  id             Int          @id @default(autoincrement())
+  name           String
+  brand_id       String
+  wholesaler_id  String
+  formulation_id String
+  strength       String?
+  pack_size      String?
+  price          Decimal?     @db.Decimal(10, 2)
+  stock_quantity Int?
+  expiry_date    DateTime?
+  batch_number   String?
+  description    String?
+  image_url      String?
+  thumbhash      String?
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  
+  brand         Brand        @relation(fields: [brand_id], references: [id])
+  wholesaler    Wholesaler   @relation(fields: [wholesaler_id], references: [id])
+  formulation   Formulation  @relation(fields: [formulation_id], references: [id])
+
+  @@index([brand_id], map: "idx_medicines_brand")
+  @@index([wholesaler_id], map: "idx_medicines_wholesaler")
+  @@index([formulation_id], map: "idx_medicines_formulation")
+  @@index([price], map: "idx_medicines_price")
+  @@index([stock_quantity], map: "idx_medicines_stock")
+  @@index([expiry_date], map: "idx_medicines_expiry")
+  @@index([createdAt], map: "idx_medicines_created_at")
+  @@map("medicines")
 }

@@ -1,11 +1,11 @@
 import { Suspense } from 'react';
-import { BooksGrid } from '@/components/grid';
+import { MedicinesGrid } from '@/components/grid';
 import { BookPagination } from '@/components/book-pagination';
 import {
-  estimateTotalBooks,
-  fetchBooksWithPagination,
+  estimateTotalMedicines,
+  fetchMedicinesWithPagination,
   ITEMS_PER_PAGE,
-} from '@/lib/db/queries-prisma';
+} from '@/lib/db/queries-pharmacy';
 import { parseSearchParams } from '@/lib/url-state';
 
 export default async function Page(
@@ -16,9 +16,9 @@ export default async function Page(
   const searchParams = await props.searchParams;
   const parsedSearchParams = parseSearchParams(searchParams);
 
-  const [books, estimatedTotal] = await Promise.all([
-    fetchBooksWithPagination(parsedSearchParams),
-    estimateTotalBooks(parsedSearchParams),
+  const [medicines, estimatedTotal] = await Promise.all([
+    fetchMedicinesWithPagination(parsedSearchParams),
+    estimateTotalMedicines(parsedSearchParams),
   ]);
 
   const totalPages = Math.ceil(estimatedTotal / ITEMS_PER_PAGE);
@@ -28,7 +28,7 @@ export default async function Page(
     <div className="flex flex-col h-full">
       <div className="flex-grow overflow-auto min-h-[200px]">
         <div className="group-has-[[data-pending]]:animate-pulse p-4">
-          <BooksGrid books={books} searchParams={parsedSearchParams} />
+          <MedicinesGrid medicines={medicines} searchParams={parsedSearchParams} />
         </div>
       </div>
       <div className="mt-auto p-4 border-t">

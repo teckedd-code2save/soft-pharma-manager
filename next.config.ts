@@ -14,6 +14,11 @@ export default {
         hostname: '*.gr-assets.com',
         port: '',
       },
+      {
+        protocol: 'https',
+        hostname: 'images.amazon.com',
+        port: '',
+      },
     ],
   },
 };

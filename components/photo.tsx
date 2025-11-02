@@ -11,7 +11,7 @@ export function Photo({
 }: {
   src: string;
   title: string;
-  thumbhash: string;
+  thumbhash: string | null;
   priority: boolean;
 }) {
   return (
@@ -19,8 +19,8 @@ export function Photo({
       <Image
         alt={title}
         src={src}
-        blurDataURL={createPngDataUri(thumbhash)}
-        placeholder="blur"
+        blurDataURL={thumbhash ? createPngDataUri(thumbhash) : undefined}
+        placeholder={thumbhash ? "blur" : "empty"}
         fill
         sizes="(min-width: 1280px) 14vw, (min-width: 1024px) 16vw, (min-width: 768px) 20vw, (min-width: 640px) 25vw, 33vw"
         priority={priority}

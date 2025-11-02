@@ -2,34 +2,37 @@ import Link from 'next/link';
 import { Photo } from './photo';
 import { SearchParams, stringifySearchParams } from '@/lib/url-state';
 
-type Book = {
+type Medicine = {
   id: number;
-  title: string;
+  name: string;
   image_url: string | null;
   thumbhash: string | null;
+  brand: { name: string };
+  price: number | null;
+  stock_quantity: number | null;
 };
 
-export async function BooksGrid({
-  books,
+export async function MedicinesGrid({
+  medicines,
   searchParams,
 }: {
-  books: any[];
+  medicines: any[];
   searchParams: SearchParams;
 }) {
-  console.log('Books data:', books?.length, books?.[0]); // Debug log
+  console.log('Medicines data:', medicines?.length, medicines?.[0]); // Debug log
   
   return (
-    <div className="grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7">
-      {!books?.length ? (
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+      {!medicines?.length ? (
         <p className="text-center text-muted-foreground col-span-full">
-          No books found.
+          No medicines found.
         </p>
       ) : (
-        books.map((book, index) => (
-          <BookLink
-            key={book.id}
+        medicines.map((medicine, index) => (
+          <MedicineLink
+            key={medicine.id}
             priority={index < 10}
-            book={book}
+            medicine={medicine}
             searchParams={searchParams}
           />
         ))
@@ -38,40 +41,40 @@ export async function BooksGrid({
   );
 }
 
-function BookLink({
+function MedicineLink({
   priority,
-  book,
+  medicine,
   searchParams,
 }: {
   priority: boolean;
-  book: any;
+  medicine: any;
   searchParams: SearchParams;
 }) {
   let noFilters = Object.values(searchParams).every((v) => v === undefined);
 
-  // Show book even without thumbhash, with fallback
   return (
     <Link
-      href={`/${book.id}?${stringifySearchParams(searchParams)}`}
-      key={book.id}
+      href={`/${medicine.id}?${stringifySearchParams(searchParams)}`}
+      key={medicine.id}
       className="block transition ease-in-out md:hover:scale-105"
       prefetch={noFilters ? true : null}
     >
-      {book.thumbhash ? (
-        <Photo
-          src={book.image_url!}
-          title={book.title}
-          thumbhash={book.thumbhash}
-          priority={priority}
-        />
-      ) : (
-        <div className="relative aspect-[2/3] w-full overflow-hidden rounded-md bg-muted shadow-md flex items-center justify-center">
-          <div className="text-center p-2">
-            <div className="text-sm font-medium truncate">{book.title}</div>
-            <div className="text-xs text-muted-foreground mt-1">No Image</div>
+      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-md bg-white border shadow-sm">
+        <div className="p-3 h-full flex flex-col">
+          <div className="text-sm font-medium truncate mb-1">{medicine.name}</div>
+          <div className="text-xs text-muted-foreground mb-2">{medicine.brand?.name}</div>
+          <div className="mt-auto">
+            {medicine.price && (
+              <div className="text-sm font-semibold text-green-600">
+                ${medicine.price.toString()}
+              </div>
+            )}
+            <div className="text-xs text-muted-foreground">
+              Stock: {medicine.stock_quantity || 0}
+            </div>
           </div>
         </div>
-      )}
+      </div>
     </Link>
   );
 }
