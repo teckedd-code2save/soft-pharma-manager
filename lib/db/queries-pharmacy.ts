@@ -7,18 +7,30 @@ function buildWhereClause(searchParams: SearchParams) {
   const where: any = {};
 
   if (searchParams.search) {
-    where.name = {
-      contains: searchParams.search,
-      mode: 'insensitive',
-    };
+    where.OR = [
+      {
+        name: {
+          contains: searchParams.search,
+          mode: 'insensitive',
+        },
+      },
+      {
+        brand_name: {
+          contains: searchParams.search,
+          mode: 'insensitive',
+        },
+      },
+      {
+        generic_name: {
+          contains: searchParams.search,
+          mode: 'insensitive',
+        },
+      },
+    ];
   }
 
   if (searchParams.brand) {
     where.brand_id = searchParams.brand;
-  }
-
-  if (searchParams.wholesaler) {
-    where.wholesaler_id = searchParams.wholesaler;
   }
 
   if (searchParams.formulation) {
@@ -26,19 +38,17 @@ function buildWhereClause(searchParams: SearchParams) {
   }
 
   if (searchParams.minPrice || searchParams.maxPrice) {
-    where.price = {};
+    where.suppliers = {
+      some: {
+        unit_price: {},
+      },
+    };
     if (searchParams.minPrice) {
-      where.price.gte = parseFloat(searchParams.minPrice);
+      where.suppliers.some.unit_price.gte = parseFloat(searchParams.minPrice);
     }
     if (searchParams.maxPrice) {
-      where.price.lte = parseFloat(searchParams.maxPrice);
+      where.suppliers.some.unit_price.lte = parseFloat(searchParams.maxPrice);
     }
-  }
-
-  if (searchParams.inStock === 'true') {
-    where.stock_quantity = {
-      gt: 0,
-    };
   }
 
   return where;
@@ -54,8 +64,12 @@ export async function fetchMedicinesWithPagination(searchParams: SearchParams) {
     where,
     include: {
       brand: true,
-      wholesaler: true,
       formulation: true,
+      suppliers: {
+        include: {
+          wholesaler: true,
+        },
+      },
     },
     orderBy: {
       id: 'asc',
@@ -84,8 +98,12 @@ export async function fetchMedicineById(id: string) {
     },
     include: {
       brand: true,
-      wholesaler: true,
       formulation: true,
+      suppliers: {
+        include: {
+          wholesaler: true,
+        },
+      },
     },
   });
 

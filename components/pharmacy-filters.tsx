@@ -1,11 +1,12 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { FilterIcon, XIcon } from 'lucide-react';
 
 interface PharmacyFiltersProps {
   brands: { id: string; name: string }[];
@@ -16,6 +17,7 @@ interface PharmacyFiltersProps {
 export function PharmacyFilters({ brands, wholesalers, formulations }: PharmacyFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isOpen, setIsOpen] = useState(false);
 
   const updateFilter = (key: string, value: string | null) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -33,8 +35,37 @@ export function PharmacyFilters({ brands, wholesalers, formulations }: PharmacyF
   };
 
   return (
-    <div className="p-4 border-b bg-muted/50">
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 items-end">
+    <div className="border-b bg-muted/50">
+      {/* Mobile Filter Toggle */}
+      <div className="md:hidden p-4">
+        <Button
+          variant="outline"
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full justify-between"
+        >
+          <span className="flex items-center gap-2">
+            <FilterIcon className="w-4 h-4" />
+            Filters
+          </span>
+          {isOpen ? <XIcon className="w-4 h-4" /> : <FilterIcon className="w-4 h-4" />}
+        </Button>
+      </div>
+
+      {/* Filters Content */}
+      <div className={`p-4 ${isOpen ? 'block' : 'hidden'} md:block`}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end">
+        <div>
+          <Label htmlFor="search">Search</Label>
+          <Input
+            id="search"
+            type="text"
+            placeholder="Search medicines..."
+            value={searchParams.get('search') || ''}
+            onChange={(e) => updateFilter('search', e.target.value || null)}
+            className="w-full"
+          />
+        </div>
+
         <div>
           <Label htmlFor="brand">Brand</Label>
           <Select
@@ -49,26 +80,6 @@ export function PharmacyFilters({ brands, wholesalers, formulations }: PharmacyF
               {brands.map((brand) => (
                 <SelectItem key={brand.id} value={brand.id}>
                   {brand.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <Label htmlFor="wholesaler">Wholesaler</Label>
-          <Select
-            value={searchParams.get('wholesaler') || 'all'}
-            onValueChange={(value) => updateFilter('wholesaler', value === 'all' ? null : value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="All wholesalers" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All wholesalers</SelectItem>
-              {wholesalers.map((wholesaler) => (
-                <SelectItem key={wholesaler.id} value={wholesaler.id}>
-                  {wholesaler.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -111,26 +122,18 @@ export function PharmacyFilters({ brands, wholesalers, formulations }: PharmacyF
           <Input
             id="maxPrice"
             type="number"
-            placeholder="100"
+            placeholder="500"
             value={searchParams.get('maxPrice') || ''}
             onChange={(e) => updateFilter('maxPrice', e.target.value || null)}
           />
         </div>
-
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="inStock"
-            checked={searchParams.get('inStock') === 'true'}
-            onCheckedChange={(checked) => updateFilter('inStock', checked ? 'true' : null)}
-          />
-          <Label htmlFor="inStock">In Stock Only</Label>
-        </div>
       </div>
 
-      <div className="mt-4">
-        <Button variant="outline" onClick={clearFilters}>
-          Clear Filters
-        </Button>
+        <div className="mt-4">
+          <Button variant="outline" onClick={clearFilters}>
+            Clear Filters
+          </Button>
+        </div>
       </div>
     </div>
   );

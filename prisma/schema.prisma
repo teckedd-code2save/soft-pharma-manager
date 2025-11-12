@@ -18,7 +18,7 @@ model Brand {
 model Wholesaler {
   id        String     @id
   name      String
-  medicines Medicine[]
+  suppliers MedicineSupplier[]
 
   @@map("wholesalers")
 }
@@ -34,15 +34,12 @@ model Formulation {
 model Medicine {
   id             Int          @id @default(autoincrement())
   name           String
+  brand_name     String?
+  generic_name   String?
   brand_id       String
-  wholesaler_id  String
   formulation_id String
   strength       String?
   pack_size      String?
-  price          Decimal?     @db.Decimal(10, 2)
-  stock_quantity Int?
-  expiry_date    DateTime?
-  batch_number   String?
   description    String?
   image_url      String?
   thumbhash      String?
@@ -50,15 +47,38 @@ model Medicine {
   updatedAt      DateTime     @updatedAt @map("updated_at")
   
   brand         Brand        @relation(fields: [brand_id], references: [id])
-  wholesaler    Wholesaler   @relation(fields: [wholesaler_id], references: [id])
   formulation   Formulation  @relation(fields: [formulation_id], references: [id])
+  suppliers     MedicineSupplier[]
 
   @@index([brand_id], map: "idx_medicines_brand")
-  @@index([wholesaler_id], map: "idx_medicines_wholesaler")
   @@index([formulation_id], map: "idx_medicines_formulation")
-  @@index([price], map: "idx_medicines_price")
-  @@index([stock_quantity], map: "idx_medicines_stock")
-  @@index([expiry_date], map: "idx_medicines_expiry")
+  @@index([name], map: "idx_medicines_name")
+  @@index([brand_name], map: "idx_medicines_brand_name")
+  @@index([generic_name], map: "idx_medicines_generic_name")
   @@index([createdAt], map: "idx_medicines_created_at")
   @@map("medicines")
+}
+
+model MedicineSupplier {
+  id             Int          @id @default(autoincrement())
+  medicine_id    Int
+  wholesaler_id  String
+  invoice_number String?
+  invoice_date   DateTime?    @map("invoice_date")
+  unit_price     Decimal      @db.Decimal(10, 2)
+  price          Decimal      @db.Decimal(10, 2)
+  stock_quantity Int?
+  batch_number   String?
+  expiry_date    DateTime?
+  last_updated   DateTime     @default(now()) @map("last_updated")
+  
+  medicine      Medicine     @relation(fields: [medicine_id], references: [id])
+  wholesaler    Wholesaler   @relation(fields: [wholesaler_id], references: [id])
+
+  @@unique([medicine_id, wholesaler_id])
+  @@index([medicine_id], map: "idx_medicine_suppliers_medicine")
+  @@index([wholesaler_id], map: "idx_medicine_suppliers_wholesaler")
+  @@index([unit_price], map: "idx_medicine_suppliers_price")
+  @@index([invoice_date], map: "idx_medicine_suppliers_invoice_date")
+  @@map("medicine_suppliers")
 }

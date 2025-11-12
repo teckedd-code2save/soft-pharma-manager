@@ -5,11 +5,12 @@ import { SearchParams, stringifySearchParams } from '@/lib/url-state';
 type Medicine = {
   id: number;
   name: string;
+  brand_name?: string;
+  generic_name?: string;
   image_url: string | null;
   thumbhash: string | null;
   brand: { name: string };
-  price: number | null;
-  stock_quantity: number | null;
+  suppliers: Array<{ unit_price?: number; price?: number; wholesaler: { name: string } }>;
 };
 
 export async function MedicinesGrid({
@@ -19,8 +20,6 @@ export async function MedicinesGrid({
   medicines: any[];
   searchParams: SearchParams;
 }) {
-  console.log('Medicines data:', medicines?.length, medicines?.[0]); // Debug log
-  
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
       {!medicines?.length ? (
@@ -47,10 +46,15 @@ function MedicineLink({
   searchParams,
 }: {
   priority: boolean;
-  medicine: any;
+  medicine: Medicine;
   searchParams: SearchParams;
 }) {
   let noFilters = Object.values(searchParams).every((v) => v === undefined);
+  
+  // Get the best price from suppliers
+  const minPrice = medicine.suppliers?.length > 0 
+    ? Math.min(...medicine.suppliers.map(s => s.unit_price || s.price || 0))
+    : null;
 
   return (
     <Link
@@ -59,19 +63,28 @@ function MedicineLink({
       className="block transition ease-in-out md:hover:scale-105"
       prefetch={noFilters ? true : null}
     >
-      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-md bg-white border shadow-sm">
+      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-md bg-white border shadow-sm hover:shadow-md">
         <div className="p-3 h-full flex flex-col">
-          <div className="text-sm font-medium truncate mb-1">{medicine.name}</div>
+          <div className="text-sm font-medium truncate mb-1">
+            {medicine.brand_name || medicine.name}
+          </div>
+          {medicine.generic_name && (
+            <div className="text-xs text-muted-foreground mb-1 line-clamp-2">
+              {medicine.generic_name}
+            </div>
+          )}
           <div className="text-xs text-muted-foreground mb-2">{medicine.brand?.name}</div>
           <div className="mt-auto">
-            {medicine.price && (
+            {minPrice && (
               <div className="text-sm font-semibold text-green-600">
-                ${medicine.price.toString()}
+                GH¢{minPrice.toFixed(2)}
               </div>
             )}
-            <div className="text-xs text-muted-foreground">
-              Stock: {medicine.stock_quantity || 0}
-            </div>
+            {medicine.suppliers?.length > 0 && (
+              <div className="text-xs text-muted-foreground">
+                {medicine.suppliers.length} supplier{medicine.suppliers.length !== 1 ? 's' : ''}
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -6,18 +6,23 @@ import {
   ArrowLeftIcon,
   BuildingIcon,
   FlaskConicalIcon,
+  TrendingDownIcon,
+  TrendingUpIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { fetchMedicineById, fetchMedicinesWithPagination } from '@/lib/db/queries-pharmacy';
+import { fetchPriceComparison } from '@/lib/db/queries-price-comparison';
 import { Photo } from '@/components/photo';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Badge } from '@/components/ui/badge';
+import { QuantityEstimator } from '@/components/quantity-estimator';
 import Link from 'next/link';
 import { SearchParams, stringifySearchParams } from '@/lib/url-state';
 
 // Prerender the first page of medicines
 export async function generateStaticParams() {
   const medicines = await fetchMedicinesWithPagination({});
-
   return medicines.map((medicine: any) => ({
     id: medicine.id.toString(),
   }));
@@ -32,10 +37,50 @@ export default async function Page(
   const searchParams = await props.searchParams;
   const params = await props.params;
   const medicine = await fetchMedicineById(params.id);
+  const priceComparison = await fetchPriceComparison(parseInt(params.id));
 
   if (!medicine) {
     return <div>Medicine not found</div>;
   }
+
+  // Serialize data for client components
+  const serializedMedicine = {
+    ...medicine,
+    suppliers: medicine.suppliers?.map((s: any) => ({
+      ...s,
+      unit_price: s.unit_price ? Number(s.unit_price) : null,
+      price: s.price ? Number(s.price) : null,
+    }))
+  };
+
+  const serializedPriceComparison = priceComparison ? {
+    ...priceComparison,
+    suppliers: priceComparison.suppliers.map((s: any) => ({
+      ...s,
+      price: Number(s.price),
+      difference: Number(s.difference),
+    })),
+    summary: {
+      ...priceComparison.summary,
+      cheapest: {
+        ...priceComparison.summary.cheapest,
+        price: Number(priceComparison.summary.cheapest.price),
+        savings: Number(priceComparison.summary.cheapest.savings),
+      },
+      mostExpensive: {
+        ...priceComparison.summary.mostExpensive,
+        price: Number(priceComparison.summary.mostExpensive.price),
+      },
+      averagePrice: Number(priceComparison.summary.averagePrice),
+      priceRange: Number(priceComparison.summary.priceRange),
+      savingsPercentage: Number(priceComparison.summary.savingsPercentage),
+    }
+  } : null;
+
+  // Get minimum price from suppliers
+  const minPrice = serializedMedicine.suppliers?.length > 0 
+    ? Math.min(...serializedMedicine.suppliers.map((s: any) => s.unit_price || s.price || 0))
+    : null;
 
   return (
     <ScrollArea className="px-4 h-full">
@@ -50,7 +95,7 @@ export default async function Page(
           {medicine.image_url && medicine.thumbhash ? (
             <Photo
               src={medicine.image_url}
-              title={medicine.name}
+              title={medicine.brand_name || medicine.name}
               thumbhash={medicine.thumbhash}
               priority={true}
             />
@@ -62,54 +107,58 @@ export default async function Page(
         </div>
 
         <div className="flex-1">
-          <h1 className="text-2xl md:text-3xl font-bold mb-2">{medicine.name}</h1>
+          <h1 className="text-2xl md:text-3xl font-bold mb-2">
+            {serializedMedicine.brand_name || serializedMedicine.name}
+          </h1>
+          {serializedMedicine.generic_name && (
+            <p className="text-lg text-gray-600 mb-2">{serializedMedicine.generic_name}</p>
+          )}
           <div className="text-lg md:text-xl mb-4 text-blue-600">
-            {medicine.brand.name}
+            {serializedMedicine.brand.name}
           </div>
 
-          {medicine.price && (
+          {minPrice && (
             <div className="flex items-center mb-4">
               <DollarSignIcon className="w-5 h-5 mr-2 text-green-600" />
               <span className="text-2xl font-bold text-green-600">
-                ${medicine.price.toString()}
+                GH¢{minPrice.toFixed(2)}
               </span>
             </div>
           )}
 
-          {medicine.description && (
-            <p className="text-gray-700 mb-6">{medicine.description}</p>
+          {serializedMedicine.description && (
+            <p className="text-gray-700 mb-6">{serializedMedicine.description}</p>
           )}
 
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="flex items-center">
               <FlaskConicalIcon className="w-5 h-5 mr-2 text-gray-600" />
-              <span>{medicine.formulation.name}</span>
+              <span>{serializedMedicine.formulation.name}</span>
             </div>
-            <div className="flex items-center">
-              <BuildingIcon className="w-5 h-5 mr-2 text-gray-600" />
-              <span>{medicine.wholesaler.name}</span>
-            </div>
-            {medicine.strength && (
+            {serializedMedicine.strength && (
               <div className="flex items-center">
                 <PillIcon className="w-5 h-5 mr-2 text-gray-600" />
-                <span>{medicine.strength}</span>
+                <span>{serializedMedicine.strength}</span>
               </div>
             )}
-            {medicine.pack_size && (
+            {serializedMedicine.pack_size && (
               <div className="flex items-center">
                 <PackageIcon className="w-5 h-5 mr-2 text-gray-600" />
-                <span>{medicine.pack_size}</span>
-              </div>
-            )}
-            <div className="flex items-center">
-              <span>Stock: {medicine.stock_quantity || 0}</span>
-            </div>
-            {medicine.batch_number && (
-              <div className="flex items-center">
-                <span>Batch: {medicine.batch_number}</span>
+                <span>{serializedMedicine.pack_size}</span>
               </div>
             )}
           </div>
+
+          {/* Quantity Estimator & Actions */}
+          <Card className="mt-8">
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Order Calculator</h3>
+              <QuantityEstimator 
+                medicine={serializedMedicine}
+                priceComparison={serializedPriceComparison}
+              />
+            </CardContent>
+          </Card>
         </div>
       </div>
     </ScrollArea>
