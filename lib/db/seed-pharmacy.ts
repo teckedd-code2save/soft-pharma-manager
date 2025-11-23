@@ -156,8 +156,17 @@ async function main() {
         },
       });
     } else {
+      const { brand_id, formulation_id, ...rest } = medicineCreate;
       medicine = await prisma.medicine.create({
-        data: medicineCreate,
+        data: {
+          ...rest,
+          brand: {
+            connect: { id: brand_id },
+          },
+          formulation: {
+            connect: { id: formulation_id },
+          },
+        },
       });
     }
 
