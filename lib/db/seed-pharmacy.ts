@@ -140,25 +140,26 @@ async function main() {
 
   for (const medicineInfo of medicineData) {
     const { unit_price, ...medicineCreate } = medicineInfo;
-    
-    const medicine = await prisma.medicine.upsert({
-      where: { id: 0 }, // Dummy where - will be replaced by unique fields
-      update: {
-        brand_name: medicineCreate.brand_name,
-        generic_name: medicineCreate.generic_name,
-      },
-      create: medicineCreate,
-    }).catch(async () => {
-      // If upsert fails, try to find by name
-      const found = await prisma.medicine.findFirst({
-        where: { name: medicineCreate.name },
+
+    // Check if medicine exists by name
+    const existingMedicine = await prisma.medicine.findFirst({
+      where: { name: medicineCreate.name },
+    });
+
+    let medicine;
+    if (existingMedicine) {
+      medicine = await prisma.medicine.update({
+        where: { id: existingMedicine.id },
+        data: {
+          brand_name: medicineCreate.brand_name,
+          generic_name: medicineCreate.generic_name,
+        },
       });
-      if (found) return found;
-      // Otherwise create new
-      return prisma.medicine.create({
+    } else {
+      medicine = await prisma.medicine.create({
         data: medicineCreate,
       });
-    });
+    }
 
     // Create medicine supplier record with invoice data
     try {

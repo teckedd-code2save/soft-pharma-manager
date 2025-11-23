@@ -5,7 +5,7 @@
     "build": "next build",
     "start": "next start",
     "db:migrate": "tsx lib/db/migrate.ts",
-    "db:seed-authors": "tsx lib/db/seed-authors.ts",
+    "db:seed-pharmacy": "tsx lib/db/seed-pharmacy.ts",
     "db:seed-books": "tsx lib/db/seed-books.ts",
     "db:seed-thumbhash": "tsx lib/db/seed-thumbhash.ts",
     "db:embeddings": "tsx lib/ai/create-embeddings.ts"
