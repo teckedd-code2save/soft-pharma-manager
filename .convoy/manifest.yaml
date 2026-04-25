@@ -1,15 +1,11 @@
-# Convoy manifest — tracks files authored by Convoy.
-# Developer source code is never modified.
+# Provenance record. Files here are Convoy-authored and may be
+# iterated on autonomously during rehearsal and medic.
+# If a developer edits any of these, provenance flips permanently.
 version: 1
-repo: softpharmamanager
-platform: vercel
-framework: next.js
-authored:
-  - path: vercel.json
-    purpose: framework=next.js, region=iad1, prisma generate in build
+files:
+  - path: Dockerfile
+    authored_by: convoy
+  - path: fly.toml
+    authored_by: convoy
   - path: .env.schema
-    purpose: declares required runtime env vars
-ignored:
-  - "MASTER SHEET FOR LOVABLE_SUPABASE DOWNLOAD (1).xlsx"
-  - book_import_checkpoint.json
-  - .env
+    authored_by: convoy
