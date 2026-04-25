@@ -20,12 +20,18 @@ import { QuantityEstimator } from '@/components/quantity-estimator';
 import Link from 'next/link';
 import { SearchParams, stringifySearchParams } from '@/lib/url-state';
 
-// Prerender the first page of medicines
+// Prerender the first page of medicines when a database is reachable.
+// Falls back to an empty list so builds succeed in environments without DB
+// access (e.g. rehearsal sandboxes); pages still render on-demand at runtime.
 export async function generateStaticParams() {
-  const medicines = await fetchMedicinesWithPagination({});
-  return medicines.map((medicine: any) => ({
-    id: medicine.id.toString(),
-  }));
+  try {
+    const medicines = await fetchMedicinesWithPagination({});
+    return medicines.map((medicine: any) => ({
+      id: medicine.id.toString(),
+    }));
+  } catch {
+    return [];
+  }
 }
 
 export default async function Page(
