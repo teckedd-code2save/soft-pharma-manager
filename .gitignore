@@ -42,3 +42,4 @@ book_import_checkpoint.json
 author_import_checkpoint.json
 thumbhash_update_checkpoint.json
 /lib/generated/prisma
+.env*.local
