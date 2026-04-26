@@ -3,9 +3,5 @@
 # If a developer edits any of these, provenance flips permanently.
 version: 1
 files:
-  - path: Dockerfile
-    authored_by: convoy
-  - path: fly.toml
-    authored_by: convoy
   - path: .env.schema
     authored_by: convoy
