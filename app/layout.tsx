@@ -6,6 +6,8 @@ import { WelcomeToast } from '@/components/welcome-toast';
 import { cn } from '@/lib/utils';
 import { Search, SearchFallback } from '@/components/search';
 import { Suspense } from 'react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 export const metadata: Metadata = {
   title: 'Pharmacy Manager — Next.js App Router',
@@ -27,10 +29,20 @@ export default function RootLayout({
       >
         <div className="flex flex-col min-h-screen">
           <div className="sticky top-0 z-10 bg-gray-100 dark:bg-black">
-            <div className="mx-8 py-4">
-              <Suspense fallback={<SearchFallback />}>
-                <Search />
-              </Suspense>
+            <div className="mx-8 flex flex-col gap-3 py-4 md:flex-row md:items-center">
+              <div className="flex-1">
+                <Suspense fallback={<SearchFallback />}>
+                  <Search />
+                </Suspense>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/">Medicines</Link>
+                </Button>
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="/alerts">Alerts</Link>
+                </Button>
+              </div>
             </div>
           </div>
           <div className="flex-1">{children}</div>

@@ -34,3 +34,15 @@ The system uses four main entities:
 - **Database**: PostgreSQL with Prisma ORM
 - **UI**: Tailwind CSS with Radix UI components
 - **TypeScript**: Full type safety throughout the application
+
+## Redis Alerts
+
+The `/alerts` page is controlled by Redis. Stock data comes from PostgreSQL, but threshold values are read from Redis.
+
+- Default threshold key: `alerts:threshold:default`
+- Per-medicine override key prefix: `alerts:threshold:medicine:`
+
+Example:
+
+- `alerts:threshold:default = 10`
+- `alerts:threshold:medicine:42 = 6`
