@@ -12,7 +12,7 @@ export interface LowStockExportRow {
 export async function exportLowStockCsv(threshold: number): Promise<string> {
   const suppliers = await prisma.medicineSupplier.findMany({
     where: {
-      stock_quantity: { lte: threshold },
+      stockquantity: { lte: threshold },
     },
     include: {
       medicine: true,
